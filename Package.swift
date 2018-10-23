@@ -22,7 +22,10 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", from: "1.8.0"),
         
         // 🔑
-        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "1.1.1")
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "1.1.1"),
+        
+        // 📝
+        .package(url: "https://github.com/OpenKitten/NioDNS.git", .revision("f73be8acc4714fcb4555af2a58851b0e6df22710"))
     ],
     targets: [
         .target(
@@ -31,7 +34,7 @@ let package = Package(
         ),
         .target(
             name: "MongoKitten",
-            dependencies: ["BSON", "_MongoKittenCrypto", "NIO", "NIOOpenSSL"]),
+            dependencies: ["BSON", "_MongoKittenCrypto", "NioDNS", "NIO", "NIOOpenSSL"]),
         .target(
             name: "GridFS",
             dependencies: ["BSON", "MongoKitten", "NIO"]),
