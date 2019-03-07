@@ -4,6 +4,7 @@ public struct CreateIndexesCommand: AdministrativeMongoDBCommand {
     typealias Reply = CreateIndexesReply
     
     internal var namespace: Namespace { return createIndexes }
+    var isRetryableWrite: Bool { return false }
     
     internal let createIndexes: Namespace
     public var indexes: [Index]

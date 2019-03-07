@@ -43,6 +43,26 @@ public final class Cluster: _ConnectionPool {
         }
     }
     
+    private var _retryWrites = false
+    public var retryWrites: Bool {
+        get {
+            if wireVersion?.supportsRetryableWrites != true {
+                return false
+            }
+            
+            return _retryWrites
+        }
+        set {
+            if wireVersion?.supportsRetryableWrites != true { return }
+            
+            _retryWrites = newValue
+            
+            for connection in pool {
+                connection.connection.retryWrites = newValue
+            }
+        }
+    }
+    
     /// When set to true, read queries are also executed on slave instances of MongoDB
     public var slaveOk = false {
         didSet {
@@ -110,26 +130,40 @@ public final class Cluster: _ConnectionPool {
     
     override func send<C: MongoDBCommand>(command: C, session: ClientSession? = nil, transaction: TransactionQueryOptions? = nil) -> EventLoopFuture<ServerReply> {
         let promise = self.eventLoop.newPromise(of: ServerReply.self)
+        let retry = command.isRetryableWrite && self.retryWrites
         
-        let future = self.getConnection().thenIfError { _ in
+        return self.getConnection().thenIfError { _ in
             return self.getConnection(writable: true)
-        }.then { connection -> EventLoopFuture<Void> in
-            let context = MongoDBCommandContext(
+        }.then { connection -> EventLoopFuture<ServerReply> in
+            var context = MongoDBCommandContext(
                 command: command,
                 requestID: connection.nextRequestId(),
-                retry: true,
+                retry: retry,
                 session: session,
                 transaction: transaction,
                 promise: promise
             )
             
             connection.context.queries.append(context)
-            return connection.channel.writeAndFlush(context)
+            return connection.channel.writeAndFlush(context).then {
+                if retry {
+                    return promise.futureResult.thenIfError { error in
+                        if !error.isRecoverable {
+                            return self.eventLoop.newFailedFuture(error: error)
+                        }
+                        
+                        context.retry = false
+                        context.promise = self.eventLoop.newPromise()
+                        
+                        return connection.channel.writeAndFlush(context).then {
+                            return context.promise.futureResult
+                        }
+                    }
+                } else {
+                    return promise.futureResult
+                }
+            }
         }
-        
-        future.whenFailure(promise.fail)
-        
-        return promise.futureResult
     }
     
     /// Connects to a cluster asynchronously
@@ -184,22 +218,23 @@ public final class Cluster: _ConnectionPool {
         let connection = Connection.connect(
             for: self,
             host: host
-            ).map { connection -> PooledConnection in
-                connection.slaveOk = self.slaveOk
+        ).map { connection -> PooledConnection in
+            connection.slaveOk = self.slaveOk
+            connection.retryWrites = self.retryWrites
+            
+            /// Ensures we default to the cluster's lowest version
+            if let connectionHandshake = connection.handshakeResult {
+                self.updateSDAM(from: connectionHandshake)
+            }
+            
+            let connectionId = ObjectIdentifier(connection)
+            connection.channel.closeFuture.whenComplete { [weak self] in
+                guard let me = self else { return }
                 
-                /// Ensures we default to the cluster's lowest version
-                if let connectionHandshake = connection.handshakeResult {
-                    self.updateSDAM(from: connectionHandshake)
-                }
-                
-                let connectionId = ObjectIdentifier(connection)
-                connection.channel.closeFuture.whenComplete { [weak self] in
-                    guard let me = self else { return }
-                    
-                    me.remove(connectionId: connectionId)
-                }
-                
-                return PooledConnection(host: host, connection: connection)
+                me.remove(connectionId: connectionId)
+            }
+            
+            return PooledConnection(host: host, connection: connection)
         }
         
         connection.whenFailure { error in
@@ -249,7 +284,9 @@ public final class Cluster: _ConnectionPool {
             let queries = pooledConnection.connection.context.queries
             
             rediscovery.whenSuccess {
-                for query in queries {
+                pooledConnection.connection.context.prepareForResend()
+                
+                for query in queries where query.retry {
                     // Retry the query
                     _ = self._send(context: query)
                 }
@@ -338,4 +375,24 @@ public final class Cluster: _ConnectionPool {
 struct PooledConnection {
     let host: ConnectionSettings.Host
     let connection: Connection
+}
+
+fileprivate extension Error {
+    var isRecoverable: Bool {
+        if self is ChannelError {
+            return true
+        }
+        
+        if let error = self as? MongoKittenError, let reply = error.errorReply {
+            switch reply.code {
+                // https://github.com/mongodb/specifications/blob/master/source/retryable-reads/retryable-reads.rst#retryable-error
+            case 11600, 11602, 10107, 13435, 13436, 189, 91, 7, 6,  89, 9001:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        return false
+    }
 }

@@ -25,6 +25,8 @@ struct SASLStart: AdministrativeMongoDBCommand {
     
     let namespace: Namespace
     
+    var isRetryableWrite: Bool { return false }
+    
     let saslStart: Int32 = 1
     let mechanism: Mechanism
     let payload: String
@@ -113,6 +115,7 @@ struct SASLContinue: AdministrativeMongoDBCommand {
     typealias Reply = SASLReply
     
     let namespace: Namespace
+    var isRetryableWrite: Bool { return false }
     
     let saslContinue: Int32 = 1
     let conversationId: Int

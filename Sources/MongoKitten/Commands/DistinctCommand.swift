@@ -13,13 +13,7 @@ public struct DistinctCommand: ReadCommand {
     public var query: Query?
     public var readConcern: ReadConcern?
     
-    static var writing: Bool {
-        return true
-    }
-    
-    static var emitsCursor: Bool {
-        return false
-    }
+    var isRetryableWrite: Bool { return false }
     
     public init(onKey key: String, into collection: Collection) {
         self.distinct = collection.namespace

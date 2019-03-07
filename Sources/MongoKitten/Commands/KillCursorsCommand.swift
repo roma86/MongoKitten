@@ -5,6 +5,8 @@ internal struct KillCursorsCommand: AdministrativeMongoDBCommand {
         return killCursors
     }
     
+    var isRetryableWrite: Bool { return false }
+    
     let killCursors: Namespace
     var cursors: [Int64]
     

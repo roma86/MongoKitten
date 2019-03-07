@@ -3,6 +3,7 @@ struct AdministrativeCommand<Command: Encodable>: AdministrativeMongoDBCommand {
     
     var namespace: Namespace
     let command: Command
+    var isRetryableWrite: Bool { return false }
     
     func encode(to encoder: Encoder) throws {
         try command.encode(to: encoder)

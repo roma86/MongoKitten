@@ -49,9 +49,7 @@ public struct AggregateCommand: ReadCommand {
     public var comment: String?
     
     // writeConcern
-    
-    static let writing = false
-    static let emitsCursor = true
+    var isRetryableWrite: Bool { return false }
     
     public init(pipeline: [Document], in collection: Collection) {
         self.aggregate = collection.namespace

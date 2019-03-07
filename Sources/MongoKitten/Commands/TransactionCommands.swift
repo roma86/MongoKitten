@@ -35,6 +35,7 @@ struct CommitTransactionCommand: AdministrativeMongoDBCommand {
     }
     
     typealias Reply = OK
+    var isRetryableWrite: Bool { return false }
     
     let commitTransaction = AdministrativeNamespace.admin
     
@@ -47,6 +48,7 @@ struct AbortTransactionCommand: AdministrativeMongoDBCommand {
     }
     
     typealias Reply = OK
+    var isRetryableWrite: Bool { return false }
     
     let abortTransaction = AdministrativeNamespace.admin
     
@@ -60,6 +62,7 @@ struct EndSessionsCommand: AdministrativeMongoDBCommand {
         case endSessions
     }
     
+    var isRetryableWrite: Bool { return false }
     let namespace: Namespace
     var endSessions: [SessionIdentifier]
     

@@ -55,7 +55,7 @@ internal final class Connection {
     
     private let clientConnectionSerializer: ClientConnectionSerializer
     
-    // TODO: var retryWrites = false
+    var retryWrites = false
     
     /// If `true`, allows reading from this node if it's a slave node
     var slaveOk: Bool {
@@ -205,7 +205,7 @@ internal final class Connection {
         let command = MongoDBCommandContext(
             command: command,
             requestID: nextRequestId(),
-            retry: true, // TODO: This is not correct, and a difference between read/write
+            retry: retryWrites,
             session: session,
             transaction: transaction,
             promise: promise
@@ -357,7 +357,6 @@ final class ClientQueryContext {
                 queries.remove(at: i)
                 query.promise.fail(error: MongoKittenError(.protocolParsingError, reason: nil))
             } else {
-                // TODO: This ensures only 1 retry, is that valid?
                 query.retry = false
                 queries[i] = query
             }

@@ -11,6 +11,10 @@ protocol MongoDBCommand: AnyMongoDBCommand {
     associatedtype Reply: ServerReplyInitializableResult
     associatedtype ErrorReply: ServerReplyInitializable
     
+    /// Not for write acknowledgement 0
+    /// Only predefined operations
+    var isRetryableWrite: Bool { get }
+    
     func execute(on collection: Collection) -> EventLoopFuture<Reply.Result>
 }
 

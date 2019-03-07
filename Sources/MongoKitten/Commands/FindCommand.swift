@@ -3,6 +3,7 @@ import NIO
 public struct FindCommand: ReadCommand {
     typealias Reply = CursorReply
     
+    var isRetryableWrite: Bool { return false }
     internal var namespace: Namespace {
         return find
     }

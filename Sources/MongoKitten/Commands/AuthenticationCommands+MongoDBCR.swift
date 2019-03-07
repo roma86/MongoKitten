@@ -12,6 +12,8 @@ struct GetNonce: MongoDBCommand {
     typealias Reply = GetNonceResult
     typealias ErrorReply = ReadErrorReply
     
+    var isRetryableWrite: Bool { return false }
+    
     let namespace: Namespace
     let getNonce: Int32 = 1
     
@@ -29,6 +31,8 @@ struct AuthenticateCR: MongoDBCommand {
     
     typealias Reply = OK
     typealias ErrorReply = ReadErrorReply
+    
+    var isRetryableWrite: Bool { return false }
     
     let namespace: Namespace
     let authenticate: Int32 = 1

@@ -54,8 +54,7 @@ public struct UpdateCommand: WriteCommand {
     /// Optional. Enables update to bypass document validation during the operation. This lets you update documents that do not meet the validation requirements.
     public var bypassDocumentValidation: Bool?
     
-    static let writing = true
-    static let emitsCursor = false
+    var isRetryableWrite: Bool { return true }
     
     /// - parameter query: The filter
     public init(_ query: Query, to document: Document, in collection: Collection, multiple: Bool? = nil) {

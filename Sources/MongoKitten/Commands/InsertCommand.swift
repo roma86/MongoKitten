@@ -8,19 +8,13 @@ public struct InsertCommand: WriteCommand {
         return insert
     }
     
+    var isRetryableWrite: Bool { return true }
+    
     internal let insert: Namespace
     public var documents: [Document]
     public var ordered: Bool?
     public var bypassDocumentValidation: Bool?
     public var writeConcern: WriteConcern?
-    
-    static var writing: Bool {
-        return true
-    }
-    
-    static var emitsCursor: Bool {
-        return false
-    }
     
     public init(_ documents: [Document], into collection: Collection) {
         self.insert = collection.namespace

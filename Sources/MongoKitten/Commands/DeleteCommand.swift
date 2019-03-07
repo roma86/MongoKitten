@@ -41,6 +41,8 @@ public struct DeleteCommand: WriteCommand {
         return delete
     }
     
+    var isRetryableWrite: Bool { return true }
+    
     /// This variable _must_ be the first encoded value, so keep it above all others
     internal let delete: Namespace
     
@@ -50,9 +52,6 @@ public struct DeleteCommand: WriteCommand {
     /// Optional. If true, then when a delete statement fails, return without performing the remaining delete statements. If false, then when a delete statement fails, continue with the remaining delete statements, if any. Defaults to true.
     public var ordered: Bool?
     public var writeConcern: WriteConcern?
-    
-    static let writing = true
-    static let emitsCursor = false
     
     /// - parameter deletes: See `DeleteCommand.deletes`
     /// - parameter collection: The collection

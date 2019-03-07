@@ -11,6 +11,8 @@ public struct CountCommand: ReadCommand {
         return count
     }
     
+    var isRetryableWrite: Bool { return false }
+    
     internal let count: Namespace
     
     /// Optional. A query that selects which documents to count in the collection or view.
@@ -23,9 +25,6 @@ public struct CountCommand: ReadCommand {
     public var skip: Int?
     public var readConcern: ReadConcern?
     public var collation: Collation?
-    
-    static let writing = false
-    static let emitsCursor = false
     
     /// - parameter query: The query
     /// - parameter collection: The collection

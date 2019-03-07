@@ -5,6 +5,8 @@ struct ListCollections: AdministrativeMongoDBCommand {
         return listCollections.namespace
     }
     
+    var isRetryableWrite: Bool { return false }
+    
     let listCollections: AdministrativeNamespace
     var filter: Document?
     

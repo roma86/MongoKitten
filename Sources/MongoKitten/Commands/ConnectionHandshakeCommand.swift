@@ -65,6 +65,8 @@ struct ConnectionHandshakeCommand: AdministrativeMongoDBCommand {
         }
     }
     
+    var isRetryableWrite: Bool { return false }
+    
     var isMaster: Int32 = 1
     var saslSupportedMechs: String?
     var client: ClientDetails?

@@ -5,6 +5,8 @@ struct ListDatabases: AdministrativeMongoDBCommand {
         return Namespace(to: "$cmd", inDatabase: "admin")
     }
     
+    var isRetryableWrite: Bool { return false }
+    
     let listDatabases: Int32 = 1
     var filter: Document?
     

@@ -7,6 +7,8 @@ internal struct GetMore: AdministrativeMongoDBCommand {
         return collection
     }
     
+    var isRetryableWrite: Bool { return false }
+    
     /// This variable _must_ be the first encoded value, so keep it above all others
     /// The cursor id
     internal let getMore: Int64
