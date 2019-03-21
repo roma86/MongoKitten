@@ -14,7 +14,7 @@ public enum RemoveLimit: Int, Codable {
 ///
 /// - see: https://docs.mongodb.com/manual/reference/command/delete/index.html
 public struct DeleteCommand: WriteCommand {
-    typealias Reply = DeleteReply
+    public typealias Reply = DeleteReply
     
     /// A single delete statement
     public struct Single: Encodable {
@@ -37,7 +37,7 @@ public struct DeleteCommand: WriteCommand {
         }
     }
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return delete
     }
     
@@ -78,7 +78,7 @@ public struct DeleteReply: ServerReplyDecodableResult {
         return ok == 1
     }
     
-    func makeResult(on collection: Collection) throws -> Int {
+    public func makeResult(on collection: Collection) throws -> Int {
         guard let successfulDeletes = successfulDeletes else {
             throw MongoKittenError(.commandFailure, reason: nil)
         }

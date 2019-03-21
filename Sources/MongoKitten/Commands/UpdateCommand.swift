@@ -3,7 +3,7 @@ import NIO
 
 /// The update command modifies documents in a collection. A single update command can contain multiple update statements. The update methods provided by the MongoDB drivers use this command internally.
 public struct UpdateCommand: WriteCommand {
-    typealias Reply = UpdateReply
+    public typealias Reply = UpdateReply
     
     /// A single update statement
     public struct Single: Encodable {
@@ -37,7 +37,7 @@ public struct UpdateCommand: WriteCommand {
         }
     }
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return update
     }
     
@@ -80,7 +80,7 @@ public struct UpdateCommand: WriteCommand {
 }
 
 public struct UpdateReply: ServerReplyDecodableResult {
-    typealias Result = UpdateReply
+    public typealias Result = UpdateReply
     
     public enum CodingKeys: String, CodingKey {
         case updated = "n"
@@ -99,7 +99,7 @@ public struct UpdateReply: ServerReplyDecodableResult {
         return ok == 1
     }
     
-    func makeResult(on collection: Collection) throws -> UpdateReply {
+    public func makeResult(on collection: Collection) throws -> UpdateReply {
         return self
     }
 }

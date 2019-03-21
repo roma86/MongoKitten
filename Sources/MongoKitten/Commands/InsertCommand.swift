@@ -2,9 +2,9 @@ import BSON
 import NIO
 
 public struct InsertCommand: WriteCommand {
-    typealias Reply = InsertReply
+    public typealias Reply = InsertReply
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return insert
     }
     
@@ -29,7 +29,7 @@ public struct InsertCommand: WriteCommand {
 }
 
 public struct InsertReply: ServerReplyDecodableResult {
-    typealias Result = InsertReply
+    public typealias Result = InsertReply
     
     private enum CodingKeys: String, CodingKey {
         case successfulInserts = "n"
@@ -45,7 +45,7 @@ public struct InsertReply: ServerReplyDecodableResult {
         return ok == 1
     }
     
-    func makeResult(on collection: Collection) -> InsertReply {
+    public func makeResult(on collection: Collection) -> InsertReply {
         return self
     }
 }

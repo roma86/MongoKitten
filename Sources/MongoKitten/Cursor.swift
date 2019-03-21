@@ -1,22 +1,22 @@
 import NIO
 import BSON
 
-internal final class Cursor {
+public final class Cursor {
     var id: Int64
     var initialBatch: [Document]?
-    var drained: Bool {
+    public var drained: Bool {
         return self.id == 0
     }
-    let collection: Collection
+    public let collection: Collection
     
-    init(reply: CursorReply, in collection: Collection) {
+    public init(reply: CursorReply, in collection: Collection) {
         self.id = reply.cursor.id
         self.initialBatch = reply.cursor.firstBatch
         self.collection = collection
     }
     
     /// Performs a `GetMore` command on the database, requesting the next batch of items
-    func getMore(batchSize: Int) -> EventLoopFuture<CursorBatch<Document>> {
+    public func getMore(batchSize: Int) -> EventLoopFuture<CursorBatch<Document>> {
         if let initialBatch = self.initialBatch {
             self.initialBatch = nil
             return collection.eventLoop.newSucceededFuture(result: CursorBatch(batch: initialBatch, isLast: self.drained))
@@ -34,7 +34,7 @@ internal final class Cursor {
         }
     }
     
-    func drain() -> EventLoopFuture<[Document]> {
+    public func drain() -> EventLoopFuture<[Document]> {
         return CursorDrainer(cursor: self).collectAll()
     }
     
@@ -61,11 +61,11 @@ internal final class Cursor {
     }
 }
 
-struct CursorBatch<Element> {
+public struct CursorBatch<Element> {
     typealias Transform = (Document) throws -> Element
     
-    internal let isLast: Bool
-    internal let batch: [Document]
+    public let isLast: Bool
+    public let batch: [Document]
     internal let batchSize: Int
     internal var currentItem = 0
     let transform: Transform
@@ -85,7 +85,7 @@ struct CursorBatch<Element> {
         self.transform = { try transform(base.transform($0)) }
     }
     
-    mutating func nextElement() throws -> Element? {
+    public mutating func nextElement() throws -> Element? {
         guard currentItem < batchSize else {
             return nil
         }
@@ -95,7 +95,7 @@ struct CursorBatch<Element> {
         return element
     }
     
-    func map<T>(_ transform: @escaping (Element) throws -> T) -> CursorBatch<T> {
+    public func map<T>(_ transform: @escaping (Element) throws -> T) -> CursorBatch<T> {
         return CursorBatch<T>(base: self, transform: transform)
     }
 }
@@ -339,7 +339,7 @@ extension QueryCursor {
 }
 
 /// A cursor that is based on another cursor
-internal protocol CursorBasedOnOtherCursor: QueryCursor {
+protocol CursorBasedOnOtherCursor: QueryCursor {
     associatedtype Base: QueryCursor
     
     var underlyingCursor: Base { get set }
@@ -430,7 +430,7 @@ extension QueryCursor where Element == Document {
 public final class MappedCursor<Base: QueryCursor, Element>: CursorBasedOnOtherCursor {
     internal typealias Transform<E> = (Base.Element) throws -> E
     
-    internal var underlyingCursor: Base
+    var underlyingCursor: Base
     var transform: Transform<Element>
     
     internal init(underlyingCursor cursor: Base, transform: @escaping Transform<Element>) {

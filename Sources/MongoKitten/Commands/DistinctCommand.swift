@@ -2,9 +2,9 @@ import BSON
 import NIO
 
 public struct DistinctCommand: ReadCommand {
-    typealias Reply = DistinctReply
+    public typealias Reply = DistinctReply
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return distinct
     }
     
@@ -27,17 +27,17 @@ public struct DistinctCommand: ReadCommand {
     }
 }
 
-struct DistinctReply: ServerReplyDecodableResult {
-    typealias Result = [Primitive]
+public struct DistinctReply: ServerReplyDecodableResult {
+    public typealias Result = [Primitive]
     
     let ok: Int
     let values: Document
     
-    var isSuccessful: Bool {
+    public var isSuccessful: Bool {
         return ok == 1
     }
     
-    func makeResult(on collection: Collection) throws -> [Primitive] {
+    public func makeResult(on collection: Collection) throws -> [Primitive] {
         return values.values
     }
 }

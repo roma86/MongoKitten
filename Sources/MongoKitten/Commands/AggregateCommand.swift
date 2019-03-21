@@ -3,9 +3,9 @@ import NIO
 
 /// Performs aggregation operation using the aggregation pipeline. The pipeline allows users to process data from a collection or other source with a sequence of stage-based manipulations.
 public struct AggregateCommand: ReadCommand {
-    typealias Reply = CursorReply
+    public typealias Reply = CursorReply
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return aggregate
     }
     

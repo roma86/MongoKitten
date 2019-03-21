@@ -74,10 +74,10 @@ struct MessageHeader {
     var opCode: OpCode
 }
 
-struct ServerReply {
+public struct ServerReply {
     var responseTo: Int32
     var cursorId: Int64 // 0 for OP_MSG
-    var documents: [Document]
+    public var documents: [Document]
     
     static func reply(fromBuffer buffer: inout ByteBuffer, responseTo: Int32) throws -> ServerReply {
         // Skip responseFlags for now

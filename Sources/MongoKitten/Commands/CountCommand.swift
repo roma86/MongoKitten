@@ -5,9 +5,9 @@ import NIO
 ///
 /// - see: https://docs.mongodb.com/manual/reference/command/count/index.html
 public struct CountCommand: ReadCommand {
-    typealias Reply = CountReply
+    public typealias Reply = CountReply
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return count
     }
     
@@ -35,15 +35,15 @@ public struct CountCommand: ReadCommand {
     }
 }
 
-struct CountReply: ServerReplyDecodableResult {
+public struct CountReply: ServerReplyDecodableResult {
     let n: Int
     let ok: Int
     
-    var isSuccessful: Bool {
+    public var isSuccessful: Bool {
         return ok == 1
     }
     
-    func makeResult(on collection: Collection) -> Int {
+    public func makeResult(on collection: Collection) -> Int {
         return n
     }
 }

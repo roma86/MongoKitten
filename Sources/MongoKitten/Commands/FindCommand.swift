@@ -1,9 +1,9 @@
 import NIO
 
 public struct FindCommand: ReadCommand {
-    typealias Reply = CursorReply
+    public typealias Reply = CursorReply
     
-    internal var namespace: Namespace {
+    public var namespace: Namespace {
         return find
     }
     
@@ -27,21 +27,21 @@ public struct CursorSettings: Encodable {
     var batchSize: Int?
 }
 
-struct CursorReply: ServerReplyDecodableResult {
+public struct CursorReply: ServerReplyDecodableResult {
     struct CursorDetails: Codable {
         var id: Int64
         var ns: String
         var firstBatch: [Document]
     }
     
-    var isSuccessful: Bool {
+    public var isSuccessful: Bool {
         return ok == 1
     }
     
     internal let cursor: CursorDetails
     private let ok: Int
     
-    func makeResult(on collection: Collection) throws -> Cursor {
+    public func makeResult(on collection: Collection) throws -> Cursor {
         return Cursor(reply: self, in: collection)
     }
 }

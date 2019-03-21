@@ -1,13 +1,13 @@
 import BSON
 import NIO
 
-protocol AnyMongoDBCommand: Encodable {
+public protocol AnyMongoDBCommand: Encodable {
     func checkValidity(for maxWireVersion: WireVersion) throws
     
     var namespace: Namespace { get }
 }
 
-protocol MongoDBCommand: AnyMongoDBCommand {
+public protocol MongoDBCommand: AnyMongoDBCommand {
     associatedtype Reply: ServerReplyInitializableResult
     associatedtype ErrorReply: ServerReplyInitializable
     
@@ -17,7 +17,7 @@ protocol MongoDBCommand: AnyMongoDBCommand {
 protocol AdministrativeMongoDBCommand: MongoDBCommand where ErrorReply == GenericErrorReply {}
 
 extension AdministrativeMongoDBCommand {
-    func checkValidity(for maxWireVersion: WireVersion) throws {}
+    public func checkValidity(for maxWireVersion: WireVersion) throws {}
 }
 
 protocol WriteCommand: MongoDBCommand where ErrorReply == WriteErrorReply {
@@ -25,7 +25,7 @@ protocol WriteCommand: MongoDBCommand where ErrorReply == WriteErrorReply {
 }
 
 extension WriteCommand {
-    func checkValidity(for maxWireVersion: WireVersion) throws {
+    public func checkValidity(for maxWireVersion: WireVersion) throws {
         if !maxWireVersion.supportsWriteConcern, self.writeConcern != nil {
             throw MongoKittenError(.unsupportedFeatureByServer, reason: .writeConcernUnsupported)
         }
@@ -37,7 +37,7 @@ protocol ReadCommand: MongoDBCommand where ErrorReply == ReadErrorReply {
 }
 
 extension ReadCommand {
-    func checkValidity(for maxWireVersion: WireVersion) throws {
+    public func checkValidity(for maxWireVersion: WireVersion) throws {
         if !maxWireVersion.supportsWriteConcern, self.readConcern != nil {
             throw MongoKittenError(.unsupportedFeatureByServer, reason: .readConcernUnsupported)
         }
@@ -45,7 +45,7 @@ extension ReadCommand {
 }
 
 extension MongoDBCommand {
-    func execute(on collection: Collection) -> EventLoopFuture<Reply.Result> {
+    public func execute(on collection: Collection) -> EventLoopFuture<Reply.Result> {
         let transaction = collection.makeTransactionQueryOptions()
         return collection.session.execute(command: self, transaction: transaction).mapToResult(for: collection)
     }
@@ -74,11 +74,11 @@ extension Document {
     }
 }
 
-protocol ServerReplyInitializable: Error {
+public protocol ServerReplyInitializable: Error {
     init(reply: ServerReply) throws
 }
 
-protocol ServerReplyInitializableResult: ServerReplyInitializable {
+public protocol ServerReplyInitializableResult: ServerReplyInitializable {
     associatedtype Result
     
     var isSuccessful: Bool { get }
@@ -91,7 +91,7 @@ protocol ServerReplyDecodable: Decodable, ServerReplyInitializable {}
 typealias ServerReplyDecodableResult = ServerReplyDecodable & ServerReplyInitializableResult
 
 extension ServerReplyDecodable {
-    init(reply: ServerReply) throws {
+    public init(reply: ServerReply) throws {
         let doc = try reply.documents.assertFirst()
         
         if let ok = doc["ok"] as? Double, ok < 1 {

@@ -1,11 +1,11 @@
-internal struct Namespace: Encodable {
+public struct Namespace: Encodable {
     public let collectionName: String
     public let databaseName: String
     public var fullCollectionName: String {
         return databaseName + "." + collectionName
     }
     
-    internal init(to collection: String, inDatabase database: String) {
+    public init(to collection: String, inDatabase database: String) {
         self.collectionName = collection
         self.databaseName = database
     }

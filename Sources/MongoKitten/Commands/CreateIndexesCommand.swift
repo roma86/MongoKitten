@@ -1,9 +1,9 @@
 import BSON
 
 public struct CreateIndexesCommand: AdministrativeMongoDBCommand {
-    typealias Reply = CreateIndexesReply
+    public typealias Reply = CreateIndexesReply
     
-    internal var namespace: Namespace { return createIndexes }
+    public var namespace: Namespace { return createIndexes }
     
     internal let createIndexes: Namespace
     public var indexes: [Index]
@@ -14,12 +14,12 @@ public struct CreateIndexesCommand: AdministrativeMongoDBCommand {
     }
 }
 
-struct CreateIndexesReply: ServerReplyDecodableResult {
-    func makeResult(on collection: Collection) throws -> Void {}
+public struct CreateIndexesReply: ServerReplyDecodableResult {
+    public func makeResult(on collection: Collection) throws -> Void {}
     
-    typealias Result = Void
+    public typealias Result = Void
     
-    var isSuccessful: Bool { return ok == 1 }
+    public var isSuccessful: Bool { return ok == 1 }
     
     private let ok: Int
     private let errmsg: String?

@@ -137,7 +137,7 @@ public struct WireVersion: Codable, Comparable, ExpressibleByIntegerLiteral {
 
 /// - see: https://docs.mongodb.com/manual/reference/command/isMaster/index.html
 public struct ConnectionHandshakeReply: ServerReplyDecodableResult {
-    typealias Result = ConnectionHandshakeReply
+    public typealias Result = ConnectionHandshakeReply
     
     /// A boolean value that reports when this node is writable. If true, then this instance is a primary in a replica set, or a master in a master-slave configuration, or a mongos instance, or a standalone mongod.
     public let ismaster: Bool
