@@ -14,7 +14,9 @@ import NIOSSL
 public final class MongoConnection {
     /// The NIO channel
     private let channel: Channel
-    public var logger: Logger { context.logger }
+    public var logger: Logger { 
+        return context.logger
+    }
     var queryTimer: Timer?
     
     public var isMetricsEnabled = false {
